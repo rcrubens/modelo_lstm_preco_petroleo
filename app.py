@@ -44,7 +44,7 @@ if st.sidebar.button("Calcule"):
             y.append(data[i+seq_length, 0])
         return np.array(X), np.array(y)
     
-    seq_length = 60
+    seq_length = 15
     X_train, y_train = create_sequences(data_train_scaled, seq_length)
     X_test, y_test = create_sequences(data_test_scaled, seq_length)
 
@@ -63,7 +63,7 @@ if st.sidebar.button("Calcule"):
 
     early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 
-    model.fit(X_train, y_train, batch_size=1, epochs=5, verbose=1, callbacks=[early_stopping])
+    model.fit(X_train, y_train, batch_size=1, epochs=3, verbose=1, callbacks=[early_stopping])
 
     train_predictions = model.predict(X_train)
     test_predictions = model. predict(X_test)
