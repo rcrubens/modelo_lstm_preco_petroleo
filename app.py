@@ -6,7 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
-from tensorflow.keras.callbacks import EarlyStopping
+# from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.metrics import mean_squared_error
 import streamlit as st
 
@@ -61,9 +61,9 @@ if st.sidebar.button("Calcule"):
     model.compile(optimizer='adam', loss='mse')
     model.add(Dropout(0.2))  # 20% dos neurônios desativados aleatoriamente para prevenir o overfitting
 
-    early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
+    # early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
 
-    model.fit(X_train, y_train, batch_size=1, epochs=3, verbose=1, callbacks=[early_stopping])
+    model.fit(X_train, y_train, batch_size=1, epochs=3, verbose=1) # callbacks=[early_stopping]
 
     train_predictions = model.predict(X_train)
     test_predictions = model. predict(X_test)
