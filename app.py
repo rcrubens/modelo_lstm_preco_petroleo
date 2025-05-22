@@ -1,8 +1,8 @@
 import warnings
 import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
@@ -61,7 +61,7 @@ if st.sidebar.button("Calcule"):
     early_stopping = EarlyStopping(monitor='loss', patience=5, restore_best_weights=True)
 
     model.fit(X_train, y_train, batch_size=1, epochs=3, verbose=1, callbacks=[early_stopping])
-
+    
     st.session_state.model = model
 
     train_predictions = model.predict(X_train)
@@ -89,33 +89,15 @@ if st.sidebar.button("Calcule"):
     test_range = df_preco.index[train_size:train_size + len(test_predictions)]
     future_index = pd.date_range(start=df_preco.index[-1], periods=prediction_ahead + 1, freq='D')[1:]
 
-    fig = go.Figure()
+    fig, ax = plt.subplots(figsize=(14, 5))
+    ax.plot(df_preco.index, df_preco['preco'], label='Preços reais', color='blue')
+    ax.axvline(x=df_preco.index[train_size], color='gray', linestyle='--', label='Train/Test Split')
+    ax.plot(train_range, train_predictions[:len(train_range)], label='Train Predictions', color='green')
+    ax.plot(test_range, test_predictions[:len(test_range)], label='Test Predictions', color='orange')
+    ax.plot(future_index, future_forecast, label=f'{prediction_ahead}-Day Forecast', color='red')
+    ax.set_title('Modelo LSTM')
+    ax.set_xlabel('Data')
+    ax.set_ylabel('Preço (USD)')
+    ax.legend()
 
-    fig.add_trace(go.Scatter(x=df_preco.index, y=df_preco['preco'], 
-                             mode='lines', name='Preços reais', 
-                             line=dict(color='blue')))
-
-    fig.add_trace(go.Scatter(x=[df_preco.index[train_size]] * 2, y=[min(df_preco['preco']), max(df_preco['preco'])], 
-                             mode='lines', name='Train/Test Split', 
-                             line=dict(color='gray', dash='dash')))
-
-    fig.add_trace(go.Scatter(x=train_range, y=train_predictions[:len(train_range)], 
-                             mode='lines', name='Train Predictions', 
-                             line=dict(color='green')))
-
-    fig.add_trace(go.Scatter(x=test_range, y=test_predictions[:len(test_range)], 
-                             mode='lines', name='Test Predictions', 
-                             line=dict(color='orange')))
-
-    fig.add_trace(go.Scatter(x=future_index, y=future_forecast.flatten(), 
-                             mode='lines', name=f'{prediction_ahead}-Day Forecast', 
-                             line=dict(color='red')))
-
-    fig.update_layout(title='Modelo LSTM - Previsão de Preços de Petróleo',
-                      xaxis_title='Data',
-                      yaxis_title='Preço (USD)',
-                      template='plotly_white',
-                      legend_title="Legenda",
-                      width=1000, height=500)
-
-    st.plotly_chart(fig)
+    st.pyplot(fig)
